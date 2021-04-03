@@ -2,7 +2,9 @@ const config = require("./config");
 const endpointRoot = "/inventory_tracker";
 port = "8000";
 const express = require("express");
+const cors = require("cors");
 const app = express();
+app.use(cors());
 app.use(`${endpointRoot}/public`, express.static("public"));
 
 const mysql = require("mysql");
