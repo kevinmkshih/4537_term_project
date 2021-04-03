@@ -1189,3 +1189,4 @@ node_modules/xdg-basedir/readme.md
 .idea/misc.xml
 .idea/modules.xml
 .idea/vcs.xml
+config.js

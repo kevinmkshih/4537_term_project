@@ -1,6 +1,6 @@
+const config = require("./config");
 const endpointRoot = "/inventory_tracker";
 port = "8000";
-
 const express = require("express");
 const app = express();
 app.use(`${endpointRoot}/public`, express.static("public"));
@@ -13,10 +13,10 @@ const url = require("url");
 
 // #region Connect Database
 const db = mysql.createConnection({
-    host: "localhost",
-    user: "root",
-    password: "password",
-    database: "inventory_tracker"
+    host: config.host,
+    user: config.user,
+    password: config.password,
+    database: config.database
 })
 db.connect((err) => {
     if (err) {
@@ -28,10 +28,10 @@ db.connect((err) => {
 // #endregion
 
 
-//#region Get requests
+//#region Get requests item
 
 app.get(endpointRoot + "/allItems", (req, res) => {
-
+    addApiCount("/allItems");
     sql = "SELECT * FROM items";
     db.query(sql, (err, results) => {
         if (err) {
@@ -53,7 +53,7 @@ app.get(endpointRoot + "/allItems", (req, res) => {
 })
 
 app.get(endpointRoot + "/itemsid", (req, res) => {
-
+    addApiCount("/itemsid");
     console.log("ok")
     let q = url.parse(req.url, true);
     let id = q.query['id'];
@@ -79,9 +79,36 @@ app.get(endpointRoot + "/itemsid", (req, res) => {
     })
 })
 
-app.get(endpointRoot + "/itemsName/", (req, res) => {
+app.get(endpointRoot + "/itemsName", (req, res) => {
+    addApiCount("/itemsName")
     let q = url.parse(req.url, true);
 })
+//#endregion
+
+//#region api history
+app.get(endpointRoot + "/getApiCount", (req, res) => {
+    sql = "SELECT * FROM api_access"
+    db.query(sql, (err, results) => {
+        if (err) {
+            throw err;
+        } else {
+            res.end(JSON.stringify(results))
+            // returns [{"name":"/allItems","count":5},{"name":"/itemsid","count":1}]
+        }
+    })
+})
+
+function addApiCount(route) {
+    sql = `update api_access set count = count + 1 where name = '${route}'`;
+    db.query(sql, (err, results) => {
+        if (err) {
+            console.log(err.message);
+            throw err;
+        } else {
+            console.log("added api access count");
+        }
+    })
+}
 
 
 //#endregion
