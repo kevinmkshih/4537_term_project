@@ -12,6 +12,7 @@ const mysql = require("mysql");
 const bodyParser = require("body-parser");
 app.use(bodyParser.urlencoded({extended: false}));
 const url = require("url");
+const path = require("path");
 
 //#region Connect Database
 const db = mysql.createConnection({
@@ -118,7 +119,7 @@ function addApiCount(route) {
 //#region Swagger
 
 app.get(endpointRoot + "/docs", (req, res) => {
-    res.sendFile()
+    res.sendFile(path.join(__dirname + "/public/swagger.html"));
 })
 
 //#endregion
