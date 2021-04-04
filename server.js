@@ -1,6 +1,6 @@
 const config = require("./config");
 const endpointRoot = "/inventory_tracker";
-port = "8000";
+const port = "8000";
 const express = require("express");
 const cors = require("cors");
 const app = express();
@@ -13,7 +13,7 @@ const bodyParser = require("body-parser");
 app.use(bodyParser.urlencoded({extended: false}));
 const url = require("url");
 
-// #region Connect Database
+//#region Connect Database
 const db = mysql.createConnection({
     host: config.host,
     user: config.user,
@@ -27,14 +27,14 @@ db.connect((err) => {
         console.log("connected");
     }
 })
-// #endregion
+//#endregion
 
 
 //#region Get requests item
 
 app.get(endpointRoot + "/allItems", (req, res) => {
     addApiCount("/allItems");
-    sql = "SELECT * FROM items";
+    let sql = "SELECT * FROM items";
     db.query(sql, (err, results) => {
         if (err) {
             console.log(err);
@@ -88,8 +88,8 @@ app.get(endpointRoot + "/itemsName", (req, res) => {
 //#endregion
 
 //#region api history
-app.get(endpointRoot + "/getApiCount", (req, res) => {
-    sql = "SELECT * FROM api_access"
+app.get(endpointRoot + "/", (req, res) => {
+    let sql = "SELECT * FROM api_access"
     db.query(sql, (err, results) => {
         if (err) {
             throw err;
@@ -101,7 +101,7 @@ app.get(endpointRoot + "/getApiCount", (req, res) => {
 })
 
 function addApiCount(route) {
-    sql = `update api_access set count = count + 1 where name = '${route}'`;
+    let sql = `update api_access set count = count + 1 where name = '${route}'`;
     db.query(sql, (err, results) => {
         if (err) {
             console.log(err.message);
@@ -112,6 +112,14 @@ function addApiCount(route) {
     })
 }
 
+
+//#endregion
+
+//#region Swagger
+
+app.get(endpointRoot + "/docs", (req, res) => {
+    res.sendFile()
+})
 
 //#endregion
 

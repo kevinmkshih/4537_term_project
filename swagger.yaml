@@ -1,0 +1,221 @@
+swagger : "2.0"
+info :
+  description : "This is Wenbo and Kevin's Inventory Tracker"
+  version : "1.0.0"
+  title : "Inventory Tracker"
+
+  license :
+    name : "Apache 2.0"
+    url : "http://www.apache.org/licenses/LICENSE-2.0.html"
+host : "kevinshih.xyz"
+basePath : "/inventory_tracker"
+
+
+tags :
+  - name : "items"
+    description : "Add or retreive items"
+  - name : "api"
+    description : "Retrieve information about api access counts"
+  - name: userDB
+    description: User Database
+
+
+paths :
+  /allItems{ :
+    get :
+      tags :
+        - "items"
+      summary : "Retrieve all items"
+      parameters : [ ]
+      description : "All items will be retrieved together in a JSON file"
+      produces :
+        - "application/json"
+      responses :
+        "200" :
+          description : "Successful Operation"
+        "500" :
+          description : "Server Error"
+        "404" :
+          description : "Empty Database"
+
+  /deleteItemId :
+    delete :
+      tags :
+        - "items"
+      summary : "Delete item by id"
+      parameters :
+        - in : "path"
+          name : "id"
+          description : "The id for the item"
+          type : integer
+          format : int64
+          required : true
+      responses :
+        "200" :
+          description : "Successful Operation"
+        "500" :
+          description : "Server Error"
+
+  /updateItemStock :
+    put :
+      tags :
+        - "items"
+      summary : "Update quantity for specific item"
+      parameters :
+        - in : path
+          name : id
+          description : The id for the item
+          required : true
+          type : integer
+          format : int64
+      responses :
+        "200" :
+          description : Successful Operation
+        "500" :
+          description : Server Error
+        "412" :
+          description : Can't have negative stock
+
+  /itemsid :
+    get :
+      tags :
+        - "items"
+      summary : "Retrieve item information by id"
+      parameters :
+        - in : "path"
+          type : integer
+          format : int64
+          name : "id"
+          description : "The id for the item"
+          required : true
+      produces : [ ]
+      responses :
+        "200" :
+          description : "Successful Operation"
+        "500" :
+          description : "Server Error"
+        "400" :
+          description : "Invalid ID"
+        404 :
+          description : Item not found
+
+  /updateName :
+    put :
+      tags :
+        - "items"
+      summary : Update inventory name
+      parameters :
+        - in : query
+          name : id
+          description : The id for the item
+          type : integer
+          format : int64
+          required : true
+        - in : query
+          name : newName
+          description : The item's new name
+          type : string
+          format : String
+          required : true
+      responses :
+        200 :
+          description : Successful Operation
+        500 :
+          description : Server Error
+
+  /addNewItem :
+    post :
+      tags :
+        - "items"
+      summary : Add a new item to the database
+      parameters :
+        - in : formData
+          name : name
+          description: item's name
+          type: string
+          format: String
+          required : true
+        - in : formData
+          name: description
+          description: item's description
+          type: string
+          format: String
+          required : false
+        - in : formData
+          name : quantity
+          description: item's inital quantity
+          type: integer
+          format: int64
+          required : false
+      responses :
+        201 :
+          description : Successful Operation
+        500 :
+          description : Server Error
+        406:
+          description: Item already exists
+  /getApiCount :
+    get :
+      tags :
+        - "api"
+      summary : "Retreive all api access counts"
+      parameters : [ ]
+      responses :
+        "200" :
+          description : "Successful Operation"
+        "500" :
+          description : "Server Error"
+  /clearAPICount:
+    post:
+      tags :
+        - "api"
+      summary: Clear API Counter
+      parameters : []
+      responses:
+        200:
+          description: Successful Operation
+        401:
+          description: Unable to Complete. Unauthorized
+        500:
+          description: Server Error
+  /deleteAPICounter:
+    delete:
+      tags :
+        - api
+      summary: Delete specific API counter variable
+      parameters :
+        - in: formData
+          name: name
+          type: string
+          format: String
+          required : true
+      responses:
+        200:
+          description: Successful Operation
+        404:
+          description: API not found
+        500:
+          description: Server Error
+  /verifyUser:
+    post:
+      tags :
+        - "userDB"
+      summary: Verifies the User
+      parameters :
+        - in: formData
+          name: username
+          type: string
+          format: String
+          required : true
+        - in: formData
+          name: password
+          type: string
+          format: String
+          required : true
+      responses:
+        202:
+          description: Authorized
+        401:
+          description: Unauthorized
+        500:
+          description: Server Error
