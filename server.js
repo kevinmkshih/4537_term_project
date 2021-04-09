@@ -64,8 +64,8 @@ app.delete(endpointRoot + "/deleteItemId/:id", (req, res) => {
                 res.writeHead(200, {'Content-Type': 'text/html', 'Access-Control-Allow-Origin': '*'});
                 res.end("Item deleted");
             })
-        } else if (result === 404) {
-            res.writeHead(404, {'Content-Type': 'text/html', 'Access-Control-Allow-Origin': '*'});
+        } else if (result === 400) {
+            res.writeHead(400, {'Content-Type': 'text/html', 'Access-Control-Allow-Origin': '*'});
             res.end("Item not found");
         } else {
             res.writeHead(500, {'Content-Type': 'text/html', 'Access-Control-Allow-Origin': '*'});
@@ -154,18 +154,43 @@ app.post(endpointRoot + "/addNewItem", (req, res) => {
         jsonBody.quantity = null ? quantity = 0 : quantity = jsonBody.quantity;
         jsonBody.description = null ? description = '' : description = jsonBody.description;
         let sql = `INSERT INTO items (name, quantity, description) VALUES ("${jsonBody.name}", ${quantity}, "${description}")`;
-        db.query(sql, (err, results) => {
-            if (err) {
-                res.writeHead(500, {'Content-Type': 'text/html', 'Access-Control-Allow-Origin': '*'});
-                res.end(err.message);
-            } else {
-                res.writeHead(200, {'Content-Type': 'text/html', 'Access-Control-Allow-Origin': '*'});
-                res.end("Name successfully added")
+        let searchResult = searchItemByName(jsonBody.name);
+        searchResult.then((resolved) => {
+            if (resolved == 200) {
+                db.query(sql, (err, results) => {
+                    if (err) {
+                        res.writeHead(500, {'Content-Type': 'text/html', 'Access-Control-Allow-Origin': '*'});
+                        res.end(err.message);
+                    } else {
+                        res.writeHead(200, {'Content-Type': 'text/html', 'Access-Control-Allow-Origin': '*'});
+                        res.end("Name successfully added")
+                    }
+                })
+            } else if (resolved == 406) {
+                res.writeHead(406, {'Content-Type': 'text/html', 'Access-Control-Allow-Origin': '*'});
+                res.end("Item already in database");
+
             }
         })
     })
 })
 
+function searchItemByName(name) {
+    return new Promise((resolve, reject) => {
+        let searchSQL = `SELECT * FROM items WHERE name = '${name}'`;
+        db.query(searchSQL, (err, results) => {
+            if (err) {
+                console.log(err.message);
+                reject(err.message);
+            }
+            if (results != 0) {
+                resolve(406);
+            } else {
+                resolve(200);
+            }
+        })
+    })
+}
 
 function searchItem(id) {
     return new Promise((resolve, reject) => {
@@ -173,7 +198,7 @@ function searchItem(id) {
         db.query(searchSQL, (err, results) => {
             if (err) {
                 console.log(err.message);
-                reject(err);
+                reject(err.message);
             }
             if (results != 0) {
                 resolve(200);
