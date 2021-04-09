@@ -21,7 +21,7 @@ tags :
 
 
 paths :
-  /allItems{ :
+  /allItems :
     get :
       tags :
         - "items"
@@ -38,13 +38,13 @@ paths :
         "404" :
           description : "Empty Database"
 
-  /deleteItemId :
+  /deleteItemId/{id} :
     delete :
       tags :
         - "items"
-      summary : "Delete item by id"
+      summary : "Delete item by id. e.g. /deleteItemId/5"
       parameters :
-        - in : "path"
+        - in : path
           name : "id"
           description : "The id for the item"
           type : integer
@@ -53,6 +53,8 @@ paths :
       responses :
         "200" :
           description : "Successful Operation"
+        "400" : 
+          description: "Item not found"
         "500" :
           description : "Server Error"
 
@@ -68,13 +70,18 @@ paths :
           required : true
           type : integer
           format : int64
+        - in : path
+          name : quantity
+          description : item quantity
+          required : true
+          type : integer
+          format : int64
       responses :
         "200" :
           description : Successful Operation
         "500" :
           description : Server Error
-        "412" :
-          description : Can't have negative stock
+
 
   /itemsid :
     get :
@@ -105,15 +112,15 @@ paths :
         - "items"
       summary : Update inventory name
       parameters :
-        - in : query
+        - in : body
           name : id
-          description : The id for the item
+          description : The id for the item (JSON object)
           type : integer
           format : int64
           required : true
-        - in : query
-          name : newName
-          description : The item's new name
+        - in : body
+          name : ame
+          description : The item's new name (JSON object)
           type : string
           format : String
           required : true
@@ -129,21 +136,21 @@ paths :
         - "items"
       summary : Add a new item to the database
       parameters :
-        - in : formData
+        - in : body
           name : name
-          description: item's name
+          description: item's name (JSON object)
           type: string
           format: String
           required : true
-        - in : formData
+        - in : body
           name: description
-          description: item's description
+          description: item's description (JSON object)
           type: string
           format: String
           required : false
-        - in : formData
+        - in : body
           name : quantity
-          description: item's inital quantity
+          description: item's inital quantity (JSON object)
           type: integer
           format: int64
           required : false
